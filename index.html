@@ -58,8 +58,8 @@
             	var network;
             	var container;
             	var exportArea;
-        	var importButton;
-         	var exportButton;
+        	    var importButton;
+         	    var exportButton;
 
             	function init() {
                 	container = document.getElementById('network');
@@ -70,38 +70,42 @@
                 	draw();
             	}
 		
-	   	document.getElementById('import').onclick = function() {
-			var files = document.getElementById('selectFiles').files;
-  			console.log(files);
-  			if (files.length <= 0) {
-    				return false;
-  			}
-  
-  			var fr = new FileReader();
-  
-  			fr.onload = function(e) { 
-  				console.log(e);
-  				var result = JSON.parse(e.target.result);
-    	   			var formatted = JSON.stringify(result, null, 2);
-				importNetwork(formatted);
- 	    		}
-  
-  			fr.readAsText(files.item(0));
-	    	};
+	   	        document.getElementById('import').onclick = function() {
+                    var files = document.getElementById('selectFiles').files;
+                    console.log(files);
+
+                    if (files.length <= 0) {
+                            return false;
+                    }
+
+                    var fr = new FileReader();
+
+                    fr.onload = function(e) {
+                        console.log(e);
+                        var result = JSON.parse(e.target.result);
+                        var formatted = JSON.stringify(result, null, 2);
+                        importNetwork(formatted);
+                        }
+
+                    fr.readAsText(files.item(0));
+                };
+
             	function addConnections(elem, index) {
-                	// need to replace this with a tree of the network, then get child direct children of the element
-                	elem.connections = network.getConnectedNodes(index);
-            	}
+                        // need to replace this with a tree of the network, then get child direct children of the element
+                        elem.connections = network.getConnectedNodes(index);
+                    }
 
-            	function destroyNetwork() {
-                	network.destroy();
-            	}
+                function destroyNetwork() {
+                        network.destroy();
+                    }
 
-            	function clearOutputArea() {
-                	exportArea.value = "";
-            	}
+                function clearOutputArea() {
+                        exportArea.value = "";
+                    }
             	
-		function download(filename, text) {
+
+
+                function download(filename, text) {
               		var element = document.createElement('a');
               		element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
               		element.setAttribute('download', filename);
@@ -113,6 +117,8 @@
 
               		document.body.removeChild(element);
             	}
+
+
             	function draw() {
                 	// create a network of nodes
                 	var data = getScaleFreeNetwork(5);
@@ -121,6 +127,7 @@
 
                 	clearOutputArea();
             	}
+
 
             	function exportNetwork() {
                 	clearOutputArea();
@@ -132,34 +139,37 @@
                 	// pretty print node data
                 	var exportValue = JSON.stringify(nodes, undefined, 2);
                 	
-			download("filename.json", exportValue)
-                	exportArea.value = exportValue;
+			        download("filename.json", exportValue);
+
+                    exportArea.value = exportValue;
 
                 	resizeExportArea();
             	}
 
             	function importNetwork(fileValue) {
+
                 	if (fileValue == "import"){
-				var inputValue = exportArea.value;
-			}
-			else{
-				var inputValue=fileValue;
-			}
+				        var inputValue = exportArea.value;
+			         }
 
-			console.log(inputValue);
-                	var inputData = JSON.parse(inputValue);
+                    else{
+				        var inputValue=fileValue;
+			        }
 
-                	var data = {
-                    		nodes: getNodeData(inputData),
-                    		edges: getEdgeData(inputData)
+			        console.log(inputValue);
+                        var inputData = JSON.parse(inputValue);
+                        var data = {
+                            nodes: getNodeData(inputData),
+                            edges: getEdgeData(inputData)
+
                 	}
 
                	 	network = new vis.Network(container, data, {});
 
                 	resizeExportArea();
-            	}
+            	    }
 
-            	function getNodeData(data) {
+                function getNodeData(data) {
                 	var networkNodes = [];
 
                 	data.forEach(function(elem, index, array) {
@@ -202,19 +212,19 @@
                   		});
                 	});
 
-                return new vis.DataSet(networkEdges);
-            }
+                    return new vis.DataSet(networkEdges);
+               }
 
-            function objectToArray(obj) {
-                return Object.keys(obj).map(function (key) {
-                  obj[key].id = key;
-                  return obj[key];
-                });
-            }
+                function objectToArray(obj) {
+                    return Object.keys(obj).map(function (key) {
+                      obj[key].id = key;
+                      return obj[key];
+                    });
+                }
 
-            function resizeExportArea() {
-                exportArea.style.height = (1 + exportArea.scrollHeight) + "px";
-            }
+                function resizeExportArea() {
+                    exportArea.style.height = (1 + exportArea.scrollHeight) + "px";
+                }
 
             init();
         </script>
