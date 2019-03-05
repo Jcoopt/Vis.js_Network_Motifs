@@ -60,6 +60,9 @@
             	var exportArea;
         	    var importButton;
          	    var exportButton;
+         	    var nodes;
+         	    var edges;
+         	    var data;
 
             	function init() {
                 	container = document.getElementById('network');
@@ -68,6 +71,8 @@
                 	exportButton = document.getElementById('export_button');
 
                 	draw();
+                	console.log('init')
+                	console.log(typeof nodes)
             	}
 		
 	   	        document.getElementById('import').onclick = function() {
@@ -93,6 +98,7 @@
             	function addConnections(elem, index) {
                         // need to replace this with a tree of the network, then get child direct children of the element
                         elem.connections = network.getConnectedNodes(index);
+
                     }
 
                 function destroyNetwork() {
@@ -120,28 +126,81 @@
 
 
             	function draw() {
-                	// create a network of nodes
-                	var data = getScaleFreeNetwork(5);
+                	// create a network of nodes with a function
 
-                	network = new vis.Network(container, data, {manipulation:{enabled:true}});
+
+                	//var data = getScaleFreeNetwork(5);
+                	//var data = getScaleFreeNetwork(5);
+
+                	//No data has been passed, so create a hard coded network
+                    if (nodes == undefined){
+                       nodes = new vis.DataSet([
+                        {id: 1, label: 'Node 1'},
+                        {id: 2, label: 'Node 2'},
+                        {id: 3, label: 'Node 3'},
+                        {id: 4, label: 'Node 4'},
+                        {id: 5, label: 'Node 5'},
+                        {id: 6, label: 'Node 6'},
+                        {id: 7, label: 'Node 7'},
+                        {id: 8, label: 'Node 8'}
+                      ]);
+
+                      // create an array with edges
+                      edges = new vis.DataSet([
+                        {from: 1, to: 8, arrows:'to'},
+                        {from: 1, to: 3, arrows:'to'},
+                        {from: 1, to: 2, arrows:'to, from'},
+                        {from: 2, to: 4, arrows:'to'},
+                        {from: 2, to: 5, arrows:'to, from'},
+                        {from: 5, to: 6, arrows:'to'},
+                        {from: 6, to: 7, arrows:'from'}               ]);
+                    }
+                    console.log('draw');
+                    console.log(nodes)
+                    console.log(nodes.get());
+
+                      // create a network
+                      var container = document.getElementById('network');
+                      var data = {
+                        nodes: nodes,
+                        edges: edges
+                      };
+
+                      var options = {};
+                	network = new vis.Network(container, data, {manipulation:{enabled:false}});
 
                 	clearOutputArea();
+                	return nodes, edges
             	}
 
 
             	function exportNetwork() {
                 	clearOutputArea();
+                	console.log(nodes.get());
+                	console.log(edges.get());
+                	//var nodes = data['nodes'];
+                //	var edges = data['edges'];
+                	//console.log(nodes);
+                    //console.log(edges);
 
-                	var nodes = objectToArray(network.getPositions());
-
-                	nodes.forEach(addConnections);
-
+                    /* old way
+                	//nodes.forEach(addConnections);
+                    nodes.forEach(addEdges);
                 	// pretty print node data
-                	var exportValue = JSON.stringify(nodes, undefined, 2);
-                	
+
+                    */
+
+                    var exportData = {}
+
+                    exportData['nodes']=nodes.get()
+                    exportData['edges']=edges.get()
+                    console.log(exportData);
+                    var exportValue = JSON.stringify(exportData);
+                	console.log(exportValue);
+
 			        download("filename.json", exportValue);
 
-                    exportArea.value = exportValue;
+                   exportArea.value = exportValue;
 
                 	resizeExportArea();
             	}
@@ -157,16 +216,23 @@
 			        }
 
 			        console.log(inputValue);
-                        var inputData = JSON.parse(inputValue);
-                        var data = {
+                    var inputData = JSON.parse(inputValue);
+                    console.log(inputData)
+                    nodes = new vis.DataSet(inputData['nodes'])
+                    edges = new vis.DataSet(inputData['edges'])
+
+                    draw()
+                       /* var data = {
                             nodes: getNodeData(inputData),
                             edges: getEdgeData(inputData)
 
+
                 	}
+                	console.log(data);
 
                	 	network = new vis.Network(container, data, {});
 
-                	resizeExportArea();
+                	resizeExportArea();*/
             	    }
 
                 function getNodeData(data) {
