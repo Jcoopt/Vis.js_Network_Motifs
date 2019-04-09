@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 import networkx as nx
 import os
+import json
 ALLOWED_EXTENSIONS = ['json', 'gml', 'txt']
 
 app.secret_key="sUPerSEECretKeyTHing1212132fbmdfb£££$$*"
@@ -33,13 +34,30 @@ def upload_file():
                 nx.write_gml(G,'graphFile.gml') #THIS IS NOT THREAD SAFE. CAN IGNORE AS THEY WANT IT LOCALLY
                # session['graphValue'] = [G]
                 return redirect(url_for('uploaded'))
-    return render_template('testVis.html')
+    return render_template('testVis.html', label='label')
 @app.route('/uploaded')
 def uploaded():
     g = nx.read_gml('graphFile.gml')
-    triads=str(runTriads(g))
-    print(triads)
-    return render_template('graphUpload.html', graph=str(triads))
+    print(g)
+    nodes={}
+    edges={}
+
+    
+    for x in g.node:
+        nodes[x] = {'id':str(x)}
+        if "label" in g.node[x]:
+            print(f"label {g.node[x]['label']}")
+            nodes[x]['label']=g.node[x]['label']
+        else:
+            nodes[x]['label'] = str(x)
+    id=0
+    for item in g.edges(data=True):
+        edges[id]=item
+        id+=1
+
+    triads = str(runTriads(g))
+
+    return render_template('graphUpload.html', nodes=nodes, edges=edges, triads=triads)
 #  file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 #   return redirect(url_for('uploaded_file',
 #                          filename=filename))
