@@ -9,7 +9,8 @@ import statistics
 import json
 ALLOWED_EXTENSIONS = ['json', 'gml', 'txt']
 
-app.secret_key="sUPerSEECretKeyTHing1212132fbmdfb£££$$*"
+# app.secret_key="sUPerSEECretKeyTHing1212132fbmdfb£££$$*"
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -34,9 +35,10 @@ def upload_file():
             if filename.rsplit('.', 1)[1].lower() == 'gml':
                 G = nx.read_gml(file, label='id')
                 nx.write_gml(G,'graphFile.gml') #THIS IS NOT THREAD SAFE. CAN IGNORE AS THEY WANT IT LOCALLY
-               # session['graphValue'] = [G]
                 return redirect(url_for('uploaded'))
     return render_template('testVis.html', label='label')
+
+
 @app.route('/uploaded')
 def uploaded():
     g = nx.read_gml('graphFile.gml')
@@ -58,6 +60,8 @@ def uploaded():
         id+=1
 
     triads,stats = runTriads(g)
+    for triad in triads:
+        print(triad)
     print(stats)
     return render_template('graphUpload.html', nodes=nodes, edges=edges, triads=str(triads),stats=stats)
 
@@ -146,14 +150,12 @@ def networkRandom():
     if os.path.exists('randomTriads.json'):
         os.remove('randomTriads.json')
 
-
     for triangle in getting_Triangles(G):
         trianglesList.append(triangle)
 
-
     for triangle in trianglesList:
-        triangleCode = TRICODE_TO_NAME[tricode(G, triangle[0], triangle[1], triangle[2])]
-        jsonList.append({'x':int(triangle[0]), 'y':int(triangle[1]), 'z':int(triangle[2]), 'id':triangleCode,
+        triangle_code = TRICODE_TO_NAME[tricode(G, triangle[0], triangle[1], triangle[2])]
+        jsonList.append({'x':int(triangle[0]), 'y':int(triangle[1]), 'z':int(triangle[2]), 'id':triangle_code,
          'connections': [int(triangle[0]), int(triangle[1]), int(triangle[2])]})
 
 
@@ -253,8 +255,6 @@ def runTriads(graph):
                             subgraph_nodes.append(int(triangle[0]))
                             subgraph_nodes.append(int(triangle[1]))
                             subgraph_nodes.append(int(triangle[2]))
-
-
 
                     subgraph_nodes = set(subgraph_nodes)
                     newRandGraph = rand_graph.subgraph(subgraph_nodes)

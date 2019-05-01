@@ -26,18 +26,37 @@
                 font-size:16px;
                 max-width:700px;
             }
+            #loading-screen{
+              border: 16px solid #f3f3f3; /* Light grey */
+              border-top: 16px solid #3498db; /* Blue */
+              border-radius: 50%;
+              width: 120px;
+              height: 120px;
+              animation: spin 2s linear infinite;
+            }
+            @-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
         </style>
     <script type="text/javascript" src="http://visjs.org/dist/vis.js"></script>
     <script type="text/javascript" src="http://visjs.org/examples/network/exampleUtil.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
     <link href="http://visjs.org/dist/vis-network.min.css" rel="stylesheet" type="text/css"/>
 
 </head>
 <body>
-    <p> {{graph}}</p>
-    <p></p>
-    <p></p>
 
-    <div id="network"></div>
+    <p></p>
+    <p></p>
+    <div id="loading-screen" style="display: none">
+
+    </div>
+    <div id="network">
 
 
 
@@ -53,16 +72,23 @@
          	    var data;
 
             	function init() {
+
+  <!-- Some of your processing -->
+
                 	container = document.getElementById('network');
                 	exportArea = document.getElementById('input_output');
                 	importButton = document.getElementById('import_button');
                 	exportButton = document.getElementById('export_button');
-
+                    $( "#loading-screen" ).show( "slow" );
+            	    $( "#network" ).hide( "slow" );
                 	draw();
                 	console.log('init')
                 	console.log(typeof nodes)
-            	}
+                    network.fit()
+                    $( "#loading-screen" ).hide( "slow" );
+                	$( "#network" ).show( "slow" );
 
+            	}
 
 
             	function addConnections(elem, index) {
@@ -159,10 +185,9 @@
                       };
 
                       var options = {};
-                	network = new vis.Network(container, data, {manipulation:{enabled:false}});
-
-                	clearOutputArea();
-                	return nodes//, edges
+                    network = new vis.Network(container, data, {manipulation:{enabled:false}});
+                    console.log("we done")
+                    return nodes //, edges
             	}
 
 
@@ -267,7 +292,7 @@
         </script>
 
     <p></p>
-    <div id ="stats" style="clear: both;">
+
     {% for stat in stats %}
 
         {% for s in stat %}
