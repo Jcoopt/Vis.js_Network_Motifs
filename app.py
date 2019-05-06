@@ -7,7 +7,7 @@ import random
 import math
 import statistics
 import json
-ALLOWED_EXTENSIONS = ['json', 'gml', 'txt']
+ALLOWED_EXTENSIONS = ['json', 'gml', 'txt', 'mtx']
 
 # app.secret_key="sUPerSEECretKeyTHing1212132fbmdfb£££$$*"
 
@@ -36,13 +36,20 @@ def upload_file():
                 G = nx.read_gml(file, label='id')
                 nx.write_gml(G,'graphFile.gml') #THIS IS NOT THREAD SAFE. CAN IGNORE AS THEY WANT IT LOCALLY
                 return redirect(url_for('uploaded'))
+
+
+            # mtx bit that needs sorting.
+            if filename.rsplit('.', 1)[1].lower() == 'mtx':
+                G = nx.read_adjlist(file, create_using=nx.DiGraph(), label='id')
+                nx.write_gml(G,'graphFile.gml') #THIS IS NOT THREAD SAFE. CAN IGNORE AS THEY WANT IT LOCALLY
+                return redirect(url_for('uploaded'))
     return render_template('testVis.html', label='label')
 
 
 @app.route('/uploaded')
 def uploaded():
     g = nx.read_gml('graphFile.gml')
-    print(g)
+    #print(g)
     nodes={}
     edges={}
 
@@ -106,9 +113,9 @@ def subgraphRatioProfile(deltaValues): # write answers out into json file
 
     values = [x / final for x in normalisedDelta]
     return values
-def networkRandom():
-    numNodes = random.randint(1, 100)
-    Degree = random.randint(1, numNodes)
+def networkRandom(numNodes, Degree):
+    #numNodes = random.randint(1, 100)
+    #Degree = random.randint(1, numNodes)
 
     while ((numNodes * Degree) % 2 != 0):
         Degree = random.randint(1, numNodes)
@@ -214,6 +221,8 @@ def runTriads(graph):
     deltaValues = []
     triadList = []
 
+    nodeCount = nx.number_of_nodes(G)
+    edgeCount = nx.number_of_edges(G)
 
     triads = nx.triadic_census(G)
     print("Triad: Occurences")
@@ -227,7 +236,7 @@ def runTriads(graph):
 
         triadTotal += triads[i]
 
-    rand_graph = networkRandom() # need to make this as a subgraph of all nodes of a specific triad
+    rand_graph = networkRandom(nodeCount, edgeCount//nodeCount) # need to make this as a subgraph of all nodes of a specific triad
     rand_triads = nx.triadic_census(rand_graph)
     rand_total = 0
     subgraph_nodes = []
@@ -293,9 +302,16 @@ def runTriads(graph):
 
     statList = []
 
-    for i in range(0, len(triadList)):
-
-        statList.append(['Triad Type: ', triadList[i], 'Significance Profile: ', sigProfile[i], 'Subgraph Ratio Profile: ', subgraphRatio[i]])
+    #for i in range(0, len(triadList)):
+    #    print("TRIAD LIST: " + str(triadList))
+    #    statList.append([triadList[i], sigProfile[i]]) #subgraphRatio[i]])
+    triadListIndex = 0
+    for i in range(0, len(TRIAD_NAMES)):
+        if(TRIAD_NAMES[i] in triadList):
+            statList.append([TRIAD_NAMES[i], sigProfile[triadListIndex]])
+            triadListIndex += 1
+        else:
+            statList.append([TRIAD_NAMES[i], 0]) 
 
 
     return jsonList,statList
