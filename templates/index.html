@@ -60,16 +60,16 @@
                     return false;
                     }
 
-                //var fr = new FileReader();
+                var fr = new FileReader();
 
-                //fr.onload = function(e) {
-                  //  console.log(e);
-                 //   var result = JSON.parse(e.target.result);
-                 //   var formatted = JSON.stringify(result, null, 2);
-                   // importNetwork(formatted);
-                     //   }
+                fr.onload = function(e) {
+                    console.log(e);
+                    var result = JSON.parse(e.target.result);
+                    var formatted = JSON.stringify(result, null, 2);
+                    importNetwork(formatted);
+                        }
 
-                  //  fr.readAsText(files.item(0));
+                    fr.readAsText(files.item(0));
                 };
 
             	function addConnections(elem, index) {
@@ -93,7 +93,7 @@
                     edges = new vis.DataSet(inputData['edges'])
 
                     draw()
-                       /* var data = {
+                        var data = {
                             nodes: getNodeData(inputData),
                             edges: getEdgeData(inputData)
 
@@ -103,7 +103,7 @@
 
                	 	network = new vis.Network(container, data, {});
 
-                	resizeExportArea();*/
+                	resizeExportArea();
             	    }
 
                 function getNodeData(data) {
